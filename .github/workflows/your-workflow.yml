@@ -1,0 +1,53 @@
+# https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
+name: <workflow-name>
+on:
+  push:
+    branches:
+      - <branch_name>
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: engswee/flashpipe:<flashpipe_version>
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Upload/Update design time artifact
+      - name: 'Update/Upload artifact to design time'
+        uses: engswee/flashpipe-action/update/artifact@v1
+        with:
+          tmn-host: <base URL of tenant management node>
+          tmn-userid: ${{ secrets.DEV_USER_ID }} # When using Basic authentication
+          tmn-password: ${{ secrets.DEV_PASSWORD }} # When using Basic authentication
+          oauth-host: <base URL of OAuth token server> # When using OAuth authentication
+          oauth-clientid: ${{ secrets.DEV_CLIENT_ID }} # When using OAuth authentication
+          oauth-clientsecret: ${{ secrets.DEV_CLIENT_SECRET }} # When using OAuth authentication
+          oauth-path: <oauth_path> # Optional
+          artifact-id: <artifact_id>
+          artifact-name: <artifact_name>
+          package-id: <package_id>
+          package-name: <package_name>
+          dir-artifact-relative: <path_to_artifact_dir> # Optional
+          artifact-type: ScriptCollection
+          file-manifest: ${{ github.workspace }}/<path_to_manifest_file> # Optional
+          file-param: ${{ github.workspace }}/<path_to_param_file> # Optional
+          script-collection-map: <comma_separated_source/target_pairs> # Optional
+
+      # Deploy to runtime
+      - name: 'Deploy artifact to runtime'
+        uses: engswee/flashpipe-action/deploy@v1
+        with:
+          tmn-host: <base URL of tenant management node>
+          tmn-userid: ${{ secrets.DEV_USER_ID }} # When using Basic authentication
+          tmn-password: ${{ secrets.DEV_PASSWORD }} # When using Basic authentication
+          oauth-host: <base URL of OAuth token server> # When using OAuth authentication
+          oauth-clientid: ${{ secrets.DEV_CLIENT_ID }} # When using OAuth authentication
+          oauth-clientsecret: ${{ secrets.DEV_CLIENT_SECRET }} # When using OAuth authentication
+          oauth-path: <oauth_path> # Optional
+          artifact-ids: <iflow_id>
+          artifact-type: <artifact_type> # Optional
+          compare-versions: <compare_versions> # Optional
+          delay-length: <delay_in_seconds> # Optional
+          max-check-limit: <max_check_limit> # Optional
